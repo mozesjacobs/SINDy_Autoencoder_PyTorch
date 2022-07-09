@@ -1,25 +1,24 @@
 import numpy as np
 import torch
 import torch.nn as nn
-from torch.utils.data import Dataset, DataLoader
+from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
 from tqdm import tqdm
 import os
 import json
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
-
-
 from cmd_line import parse_args
 from src.trainer.baseline import train, test
-from src.utils.other import *
+from src.utils.other import *#load_data, load_model, make_model, get_tb_path, get_checkpoint_path, get_args_path, get_experiments_path
+from src.utils.model_utils import init_weights
 
 
 def main():
     # get and save args
     args = parse_args()
 
-    # train and test data
-    train_set, test_set = load_data(args)
+    # train and val data (will refer to the val data as test data)
+    train_set, test_set, _ = load_data(args)
 
     # dataloaders
     train_loader = DataLoader(train_set, batch_size=args.batch_size, shuffle=True, num_workers=1)
@@ -45,46 +44,34 @@ def main():
     if args.print_folder == 1:
         print(cp_folder)
         print(exp_folder)
-
-    # experiments output folder and checkpoint folder
-    exp_folder = get_experiments_path(args)
-    os.system("mkdir -p " + exp_folder)
     
     # save args
     with open(args_path, 'w') as f:
         json.dump(args.__dict__, f, indent=2)
 
     # create model, optim, scheduler, initial epoch
-    net = make_model(args, device).to(device)
-    optim = torch.optim.Adam(net.parameters(), lr=args.learning_rate, weight_decay=args.regularization)
+    net = make_model(args).to(device)
+    optim = torch.optim.Adam(net.parameters(), lr=args.learning_rate, weight_decay=args.adam_regularization)
     scheduler = torch.optim.lr_scheduler.ExponentialLR(optim, gamma=args.gamma_factor)
     initial_e = 0
     
     # load model, optim, scheduler, epoch from checkpoint
     if args.load_cp == 1:
-        checkpoint = torch.load(cp_path, map_location="cuda:" + str(device))
-        net.load_state_dict(checkpoint['model'])
-        net.to(device)
-        net.update_device(device)
-        optim.load_state_dict(checkpoint['optimizer'])
-        scheduler.load_state_dict(checkpoint['scheduler'])
-        initial_e = checkpoint['epoch']
+        net, optim, scheduler, initial_e = load_model(net, optim, scheduler, cp_path, device)
     else:  # init network
-        def init_weights(m):
-            if isinstance(m, nn.Linear):
-                nn.init.xavier_uniform_(m.weight)
-                if m.bias is not None:
-                    m.bias.data.fill_(0.01)
         net.apply(init_weights)
+
+    # lambdas for loss function
+    lambdas = args.lambda_1, args.lambda_2, args.lambda_3
 
     # for each epoch
     for epoch in tqdm(range(args.epochs), desc="Epoch", total=args.epochs, dynamic_ncols=True):
         # train
-        train(net, train_loader, train_board, optim, epoch + initial_e, args.clip, args.timesteps)
+        train(net, train_loader, train_board, optim, epoch + initial_e, args.clip, lambdas)
 
         # test
         if (epoch + 1) % args.test_interval == 0:
-            test(net, test_loader, test_board, epoch + initial_e, args.timesteps)
+            test(net, test_loader, test_board, epoch + initial_e, args.timesteps, lambdas)
         
         # step on learning rate scheduler
         scheduler.step()

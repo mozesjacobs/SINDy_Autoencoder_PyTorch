@@ -1,4 +1,5 @@
 import torch
+import torch.nn as nn
 import numpy as np
 from scipy.special import binom
 from scipy.integrate import odeint
@@ -19,11 +20,11 @@ def library_size(n, poly_order, use_sine=False, include_constant=True):
     return l
 
 
-def sindy_library(X, poly_order, include_sine=False, include_constant=True):
+def sindy_library(X, poly_order, device, include_sine=False, include_constant=True):
     # timesteps x latent dim
     m, n = X.shape
     l = library_size(n, poly_order, include_sine, include_constant)
-    library = torch.ones((m,l))
+    library = torch.ones((m,l), device=device)
     index = 1
 
     for i in range(n):
@@ -66,3 +67,9 @@ def sindy_library(X, poly_order, include_sine=False, include_constant=True):
             index += 1
 
     return library
+
+def init_weights(m):
+    if isinstance(m, nn.Linear):
+        nn.init.xavier_uniform_(m.weight)
+        if m.bias is not None:
+            m.bias.data.fill_(0.01)
