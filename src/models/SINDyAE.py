@@ -22,6 +22,8 @@ class Net(nn.Module):
         self.decoder = self.build_net(self.z_dim, self.hidden_dim, self.u_dim)
         self.sindy_coefficients = nn.Parameter(torch.randn(self.library_dim, self.z_dim, requires_grad=True))
         nn.init.xavier_normal_(self.sindy_coefficients)
+        self.sequential_threshold = args.sequential_threshold
+        self.threshold_mask = nn.Parameter(torch.ones_like(self.sindy_coefficients), requires_grad=False)
         
 
     def forward(self, x, dx, lambdas):
@@ -31,6 +33,9 @@ class Net(nn.Module):
         # reshape data to be (b * t) x u
         x = x.view(-1, self.u_dim).type(torch.FloatTensor).to(device)
         dx = dx.view(-1, self.u_dim).type(torch.FloatTensor).to(device)
+        
+        # update the mask
+        self.threshold_mask[self.sindy_coefficients < self.sequential_threshold] = 0
         
         # encode and decode
         z = self.encoder(x)
@@ -57,7 +62,8 @@ class Net(nn.Module):
     def predict(self, theta):
         # sindy_coefficients: L x z
         theta = theta.unsqueeze(1) # (b * T) x L  --->   (b * T) x 1 x L
-        return torch.matmul(theta, self.sindy_coefficients).squeeze() # (b x T) x z
+        masked_coeffs = self.sindy_coefficients * self.threshold_mask
+        return torch.matmul(theta, masked_coeffs).squeeze() # (b x T) x z
     
 
     # Returns the first order time derivative of z (dz/dt) or the reconstructed x (dx/dt)

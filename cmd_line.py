@@ -24,7 +24,7 @@ def parse_args():
     parser.add_argument('-NL', '--nonlinearity', default='elu', type=str, help="Nonlinearity to use in autoencoder (elu, sig, relu, None)")
     
     # training parameters
-    parser.add_argument('-E', '--epochs', default=50, type=float, help="Number of epochs to train for")
+    parser.add_argument('-E', '--epochs', default=200, type=float, help="Number of epochs to train for")
     parser.add_argument('-LR', '--learning_rate', default=1e-3, type=float, help="Learning rate")
     parser.add_argument('-ARE', '--adam_regularization', default=1e-5, type=float, help="Regularization to use in ADAM optimizer")
     parser.add_argument('-GF', '--gamma_factor', default=0.995, type=float, help="Learning rate decay gamma factor")
@@ -35,6 +35,7 @@ def parse_args():
     parser.add_argument('-C', '--clip', default=None, type=float, help="Gradient clipping value during training (None for no clipping)")
     parser.add_argument('-TI', '--test_interval', default=1, type=float, help="Epoch interval to evaluate on val (test) data during training")
     parser.add_argument('-CPI', '--checkpoint_interval', default=1, type=float, help="Epoch interval to save model during training")
+    parser.add_argument('-ST', '--sequential_threshold', default=1e-1, type=float, help="Sequential thresholding value for coefficients")
 
     # lorenz dataset parameters
     parser.add_argument('-TIC', '--train_initial_conds', default=2048, type=int, help='Number of initial conditions in the training set')
