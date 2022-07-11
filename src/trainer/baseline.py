@@ -19,13 +19,15 @@ def train(net, train_loader, train_board, optim, epoch, clip, lambdas):
         epoch_l_reg += l_reg.item()
 
         # backprop
-        #batch_loss = (l_recon * 0 + l_dx * 1e3 + l_dz * 0 + l_reg * 0) / len(x)
         batch_loss = (l_recon + l_dx + l_dz + l_reg) / len(x)
         optim.zero_grad()
         batch_loss.backward()
         if clip is not None:
             torch.nn.utils.clip_grad_norm_(net.parameters(), clip)
-        optim.step()    
+        optim.step()
+
+        # update the mask
+        net.threshold_mask[torch.abs(net.sindy_coefficients) < net.sequential_threshold] = 0
     
     # average
     num_batches = len(train_loader)

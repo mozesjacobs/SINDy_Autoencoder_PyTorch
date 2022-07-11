@@ -32,10 +32,7 @@ class Net(nn.Module):
         
         # reshape data to be (b * t) x u
         x = x.view(-1, self.u_dim).type(torch.FloatTensor).to(device)
-        dx = dx.view(-1, self.u_dim).type(torch.FloatTensor).to(device)
-        
-        # update the mask
-        self.threshold_mask[self.sindy_coefficients < self.sequential_threshold] = 0
+        dx = dx.view(-1, self.u_dim).type(torch.FloatTensor).to(device)        
         
         # encode and decode
         z = self.encoder(x)

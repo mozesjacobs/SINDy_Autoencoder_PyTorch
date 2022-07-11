@@ -42,9 +42,10 @@ def main():
     if not os.path.isdir(exp_folder):
         os.system("mkdir -p " + exp_folder)
     if args.print_folder == 1:
-        print(cp_folder)
-        print(exp_folder)
-    
+        print("Checkpoints saved at:        ", cp_folder)
+        print("Experiment results saved at: ", exp_folder)
+        print("Tensorboard logs saved at:   ", train_name[:-5])
+
     # save args
     with open(args_path, 'w') as f:
         json.dump(args.__dict__, f, indent=2)
