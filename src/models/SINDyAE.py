@@ -68,7 +68,7 @@ class Net(nn.Module):
     def predict(self, theta):
         # sindy_coefficients: L x z
         theta = theta.unsqueeze(1) # (b * T) x L  --->   (b * T) x 1 x L
-        return torch.matmul(theta, self.sindy_coefficients).squeeze() # b x T x z
+        return torch.matmul(theta, self.sindy_coefficients).squeeze() # (b x T) x z
     
     # Returns the first order time derivative of z (dz/dt) or the reconstructed x (dx/dt)
     # assumes only sigmoid activation
@@ -89,10 +89,10 @@ class Net(nn.Module):
         # reconstruction loss
         l_recon = self.mse(x_recon, x)
         
-        # SINDy loss in x_dot
+        # SINDy loss in dx
         l_dx = lambdas[0] * self.mse(dx_pred, dx)
         
-        # SINDy loss in z_dot
+        # SINDy loss in dz
         l_dz = lambdas[1] * self.mse(dz_pred, dz)
         
         # SINDy regularization

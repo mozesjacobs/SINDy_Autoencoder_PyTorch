@@ -11,7 +11,7 @@ def train(net, train_loader, train_board, optim, epoch, clip, lambdas):
     epoch_l_reg = 0
 
     # for each batch
-    for x, dx in tqdm(train_loader, desc="Training", total=len(train_loader), dynamic_ncols=True):
+    for x, dx, dz in tqdm(train_loader, desc="Training", total=len(train_loader), dynamic_ncols=True):
         l_recon, l_dx, l_dz, l_reg = net(x, dx, lambdas)
         epoch_l_recon += l_recon.item()
         epoch_l_dx += l_dx.item()
@@ -19,6 +19,7 @@ def train(net, train_loader, train_board, optim, epoch, clip, lambdas):
         epoch_l_reg += l_reg.item()
 
         # backprop
+        #batch_loss = (l_recon * 0 + l_dx * 1e3 + l_dz * 0 + l_reg * 0) / len(x)
         batch_loss = (l_recon + l_dx + l_dz + l_reg) / len(x)
         optim.zero_grad()
         batch_loss.backward()
@@ -43,7 +44,7 @@ def train(net, train_loader, train_board, optim, epoch, clip, lambdas):
 def test(net, test_loader, test_board, epoch, timesteps, lambdas):
     net.eval()
     total_recon, total_dx, total_dz, total_reg = 0, 0, 0, 0
-    for x, dx in tqdm(test_loader, desc="Testing", total=len(test_loader), dynamic_ncols=True):
+    for x, dx, dz in tqdm(test_loader, desc="Testing", total=len(test_loader), dynamic_ncols=True):
         l_recon, l_dx, l_dz, l_reg = net(x, dx, lambdas)
         total_recon += l_recon.item()
         total_dx += l_dx.item()
