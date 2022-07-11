@@ -26,6 +26,9 @@ def make_model(args):
 def get_lorenz_path():
     return "data/lorenz/train.npy", "data/lorenz/val.npy", "data/lorenz/test.npy"
 
+def get_lorenz_path():
+    return "data/lorenz/train.npy", "data/lorenz/val.npy", "data/lorenz/test.npy"
+
 def get_general_path(args):
     return "/" + args.data_set + "/" + args.model + "/" + args.session_name + "/"
 
