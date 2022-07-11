@@ -21,7 +21,7 @@ def parse_args():
     parser.add_argument('-PO', '--poly_order', default=3, type=str, help="Highest polynomial degree to include in library")
     parser.add_argument('-US', '--use_sine', default=False, type=bool, help="Iff true, includes sine function in library")
     parser.add_argument('-IC', '--include_constant', default=True, type=bool, help="Iff true, includes constant term in library")
-    parser.add_argument('-NL', '--nonlinearity', default='elu', type=str, help="Nonlinearity to use in autoencoder (elu, sig, relu, none)")
+    parser.add_argument('-NL', '--nonlinearity', default='elu', type=str, help="Nonlinearity to use in autoencoder (elu, sig, relu, None)")
     
     # training parameters
     parser.add_argument('-E', '--epochs', default=50, type=float, help="Number of epochs to train for")
