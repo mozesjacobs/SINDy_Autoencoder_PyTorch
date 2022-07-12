@@ -1,5 +1,14 @@
 # SINDy Autoencoder - PyTorch
-Implementation of the Ensemble SINDy Autoencoder
+PyTorch implementation of the SINDy Autoencoder from the paper "Data-driven discovery of coordinates and governing equations"
+by Champion et al.
+
+The original implementation is in TensorFlow and is located at: https://github.com/kpchamp/SindyAutoencoders <br>
+The TensorFlow implementation was used as a reference and, for some components, code was directly copied over.
+In the latter case, each file with copied code has a reference to which file in the original repository it was taken from.
+
+## Datasets
+Currently, the model supports only using a Lorenz system dataset.
+To create it, run "python3 create_lorenz.py"
 
 ## To run the model:
 python3 main.py
