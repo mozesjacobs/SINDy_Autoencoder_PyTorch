@@ -40,21 +40,13 @@ def main():
         print("Checkpoints saved at:        ", cp_folder)
         print("Experiment results saved at: ", exp_folder)
 
-    # create model, optim, scheduler, initial epoch
+    # load model
     net = make_model(args).to(device)
-    optim = torch.optim.Adam(net.parameters(), lr=args.learning_rate, weight_decay=args.adam_regularization)
-    scheduler = torch.optim.lr_scheduler.ExponentialLR(optim, gamma=args.gamma_factor)
-    initial_e = 0
-    
-    # load model, optim, scheduler, epoch from checkpoint
-    if args.load_cp == 1:
-        net, optim, scheduler, initial_e = load_model(net, optim, scheduler, cp_path, device)
-    else:  # init network
-        net.apply(init_weights)
+    net, _, _, _ = load_model(net, optim, scheduler, cp_path, device)
 
     # print the governing equations
     print_gov_eqs(net)
-    
+
 
 if __name__ == "__main__":
     main()
