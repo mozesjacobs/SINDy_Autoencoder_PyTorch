@@ -112,6 +112,60 @@ def equation_sindy_library(n=3, poly_order=3, device=1, include_sine=False, incl
     return str_lib
 
 
+def sindy_library_tf_order2(z, dz, poly_order, include_sine=False, include_constant=True):
+    """
+    Build the SINDy library for a second order system. This is essentially the same as for a first
+    order system, but library terms are also built for the derivatives.
+    """
+    # timesteps x latent dim
+    X = torch.cat((z, dz), dim=1)
+    m, n = X.shape
+    l = library_size(n, poly_order, include_sine, include_constant)
+    library = torch.ones((m,l), device=device)
+    index = 1
+
+    for i in range(n):
+        library[:,index] = X[:,i]
+        index += 1
+
+    if poly_order > 1:
+        for i in range(n):
+            for j in range(i,n):
+                library[:,index] = X[:,i] * X[:,j]
+                index += 1
+
+    if poly_order > 2:
+        for i in range(n):
+            for j in range(i,n):
+                for k in range(j,n):
+                    library[:,index] = X[:,i] * X[:,j] * X[:,k]
+                    index += 1
+
+    if poly_order > 3:
+        for i in range(n):
+            for j in range(i,n):
+                for k in range(j,n):
+                    for q in range(k,n):
+                        library[:,index] = X[:,i] * X[:,j] * X[:,k] * X[:,q]
+                        index += 1
+                    
+    if poly_order > 4:
+        for i in range(n):
+            for j in range(i,n):
+                for k in range(j,n):
+                    for q in range(k,n):
+                        for r in range(q,n):
+                            library[:,index] = X[:,i] * X[:,j] * X[:,k] * X[:,q] * X[:,r]
+                            index += 1
+
+    if include_sine:
+        for i in range(n):
+            library[:,index] = np.sin(X[:,i])
+            index += 1
+
+    return library
+
+
 def get_equation(lib, coef, start):
     res = start
     for i in range(len(coef)):
