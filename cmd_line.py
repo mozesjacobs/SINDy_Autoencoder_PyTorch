@@ -23,6 +23,7 @@ def parse_args():
     parser.add_argument('-US', '--use_sine', default=False, type=bool, help="Iff true, includes sine function in library")
     parser.add_argument('-IC', '--include_constant', default=True, type=bool, help="Iff true, includes constant term in library")
     parser.add_argument('-NL', '--nonlinearity', default='elu', type=str, help="Nonlinearity to use in autoencoder (elu, sig, relu, None)")
+    parser.add_argument('-MO', '--model_order', default=1, type=int, help="Determines whether model predits 1st or 2nd order derivatives (values: 1, 2)")
     
     # training parameters
     parser.add_argument('-E', '--epochs', default=100, type=float, help="Number of epochs to train for")
