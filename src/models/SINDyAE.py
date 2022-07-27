@@ -104,69 +104,69 @@ class Net(nn.Module):
 
     
     def get_derivative_order2(self, layer_output, dL, ddL, net):
-    """
-    Compute the first and second order time derivatives by propagating through the network.
-    Arguments:
-        input - 2D tensorflow array, input to the network. Dimensions are number of time points
-        by number of state variables.
-        dx - First order time derivatives of the input to the network.
-        ddx - Second order time derivatives of the input to the network.
-        weights - List of tensorflow arrays containing the network weights
-        biases - List of tensorflow arrays containing the network biases
-        activation - String specifying which activation function to use. Options are
-        'elu' (exponential linear unit), 'relu' (rectified linear unit), 'sigmoid',
-        or linear.
-    Returns:
-        dz - Tensorflow array, first order time derivatives of the network output.
-        ddz - Tensorflow array, second order time derivatives of the network output.
-    """
-    dz = dL
-    ddz = ddL
-    for i in range(len(net) - 1):
-        curr_layer = net[i]
+        """
+        Compute the first and second order time derivatives by propagating through the network.
+        Arguments:
+            input - 2D tensorflow array, input to the network. Dimensions are number of time points
+            by number of state variables.
+            dx - First order time derivatives of the input to the network.
+            ddx - Second order time derivatives of the input to the network.
+            weights - List of tensorflow arrays containing the network weights
+            biases - List of tensorflow arrays containing the network biases
+            activation - String specifying which activation function to use. Options are
+            'elu' (exponential linear unit), 'relu' (rectified linear unit), 'sigmoid',
+            or linear.
+        Returns:
+            dz - Tensorflow array, first order time derivatives of the network output.
+            ddz - Tensorflow array, second order time derivatives of the network output.
+        """
+        dz = dL
+        ddz = ddL
+        for i in range(len(net) - 1):
+            curr_layer = net[i]
 
-        # if linear layer, get transposed weights and bias
-        if isinstance(curr_layer, nn.Linear):
-            wT, b = curr_layer.weight.T, curr_layer.bias
-        # if its the activation function, skip to next layer
-        else: 
-            continue
+            # if linear layer, get transposed weights and bias
+            if isinstance(curr_layer, nn.Linear):
+                wT, b = curr_layer.weight.T, curr_layer.bias
+            # if its the activation function, skip to next layer
+            else: 
+                continue
 
-        # do affine transformation before the activation function
-        if self.nonlinearity is not None:
-            output_before_act = torch.matmul(layer_output, wT) + b
-        
-        if self.nonlinearity == 'sig':
-            dz_prev = torch.matmul(dz, wT)
-            layer_output = torch.sigmoid(output_before_act)
-            d_layer_output = layer_output * (1 - layer_output)
-            dd_layer_output = d_layer_output * (1 - 2 * layer_output)
-            dz = d_layer_output * dz_prev
-            ddz = (dd_layer_output * (dz_prev ** 2)) + (d_layer_output * torch.matmul(ddz, wT))
-        
-        elif self.nonlinearity == 'relu':
-            layer_output = nn.functional.relu(output_before_act)
-            d_layer_output = (output_before_act > 1).float()
-            dz = d_layer_output * torch.matmul(dz, wT)
-            ddz = d_layer_output * torch.matmul(ddz, wT)
-        
-        elif self.nonlinearity == 'elu':
-            dz_prev = torch.matmul(dz, wT)
-            layer_output = nn.functional.elu(output_before_act)
-            d_layer_output = torch.min(torch.exp(output_before_act), torch.ones_like(output_before_act))[0]
-            dd_layer_output = torch.exp(output_before_act) * (output_before_act < 0).float()
-            dz = d_layer_output * dz_prev
-            ddz = (dd_layer_output * (dz_prev ** 2)) + (d_layer_output * torch.matmul(ddz, wT))
+            # do affine transformation before the activation function
+            if self.nonlinearity is not None:
+                output_before_act = torch.matmul(layer_output, wT) + b
+            
+            if self.nonlinearity == 'sig':
+                dz_prev = torch.matmul(dz, wT)
+                layer_output = torch.sigmoid(output_before_act)
+                d_layer_output = layer_output * (1 - layer_output)
+                dd_layer_output = d_layer_output * (1 - 2 * layer_output)
+                dz = d_layer_output * dz_prev
+                ddz = (dd_layer_output * (dz_prev ** 2)) + (d_layer_output * torch.matmul(ddz, wT))
+            
+            elif self.nonlinearity == 'relu':
+                layer_output = nn.functional.relu(output_before_act)
+                d_layer_output = (output_before_act > 1).float()
+                dz = d_layer_output * torch.matmul(dz, wT)
+                ddz = d_layer_output * torch.matmul(ddz, wT)
+            
+            elif self.nonlinearity == 'elu':
+                dz_prev = torch.matmul(dz, wT)
+                layer_output = nn.functional.elu(output_before_act)
+                d_layer_output = torch.min(torch.exp(output_before_act), torch.ones_like(output_before_act))[0]
+                dd_layer_output = torch.exp(output_before_act) * (output_before_act < 0).float()
+                dz = d_layer_output * dz_prev
+                ddz = (dd_layer_output * (dz_prev ** 2)) + (d_layer_output * torch.matmul(ddz, wT))
 
-        else:
-            d_layer_output = 1
-            dd_layer_output = 1
-            dz = torch.matmul(dz, wT)
-            ddz = torch.matmul(ddz, wT)
+            else:
+                d_layer_output = 1
+                dd_layer_output = 1
+                dz = torch.matmul(dz, wT)
+                ddz = torch.matmul(ddz, wT)
 
-    dz = d_layer_output * torch.matmul(dz, wT)
-    ddz = dd_layer_output * torch.matmul(ddz, wT)
-    return dz, ddz
+        dz = d_layer_output * torch.matmul(dz, wT)
+        ddz = dd_layer_output * torch.matmul(ddz, wT)
+        return dz, ddz
 
 
     def loss_func(self, x, x_recon, dx_pred, dz_pred, dx, dz, lambdas):

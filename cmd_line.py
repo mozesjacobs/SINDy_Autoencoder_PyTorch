@@ -8,8 +8,8 @@ def parse_args():
     # anything that affects the name of the saved folders (for checkpoints, experiments, tensorboard)
     # path saved as: initial_folder/data_set/model/session_name
     # where initial_folder is experiments, model_folder, or tensorboard_folder
-    parser.add_argument('-sess', '--session_name', default="june11", type=str, help="Session name")
-    parser.add_argument('-M',  '--model', default="SINDyAE", type=str, help="Model to use")
+    parser.add_argument('-sess', '--session_name', default="7-27-2022_1", type=str, help="Session name")
+    parser.add_argument('-M',  '--model', default="SINDyVAE", type=str, help="Model to use")
     parser.add_argument('-EX', '--experiments', default='./experiments/', type=str, help="Output folder for experiments")
     parser.add_argument('-MF', '--model_folder', default='./trained_models/', type=str, help="Output folder for experiments")
     parser.add_argument('-TB', '--tensorboard_folder', default='./tb_runs/', type=str, help="Output folder for tensorboard")

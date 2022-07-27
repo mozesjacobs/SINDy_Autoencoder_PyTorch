@@ -3,7 +3,7 @@ from src.dataset.Datasets import *
 def load_data(args):
     # train and val data (using val as "test" data)
     if args.data_set == "lorenz":
-        data_paths = get_lorenz_path()
+        folder, data_paths = get_lorenz_path()
         train_set = LorenzDataset(args, data_paths[0])
         val_set = LorenzDataset(args, data_paths[1])
         test_set = LorenzDataset(args, data_paths[2])
@@ -21,10 +21,13 @@ def load_model(net, optim, scheduler, cp_path, device):
 def make_model(args):
     if args.model == 'SINDyAE':
         from src.models.SINDyAE import Net
+    if args.model == 'SINDyVAE':
+        from src.models.SINDyVAE import Net
     return Net(args)
 
 def get_lorenz_path():
-    return "data/lorenz/train.npy", "data/lorenz/val.npy", "data/lorenz/test.npy"
+    folder = "data/lorenz/"
+    return folder, (folder + "train.npy", folder + "val.npy", folder + "test.npy")
 
 def get_general_path(args):
     return args.data_set + "/" + args.model + "/" + args.session_name + "/"

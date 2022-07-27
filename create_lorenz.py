@@ -15,7 +15,9 @@ def main():
     test_data = get_lorenz_data(n_ics=args.test_initial_conds, noise_strength=args.noise_strength)
 
     # save data
-    data_paths = get_lorenz_path()
+    folder, data_paths = get_lorenz_path()
+    if not os.path.isdir(folder):
+        os.system("mkdir -p " + folder)
     np.save(data_paths[0], train_data)
     np.save(data_paths[1], val_data)
     np.save(data_paths[2], test_data)
