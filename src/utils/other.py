@@ -9,12 +9,14 @@ def load_data(args):
         test_set = LorenzDataset(args, data_paths[2])
     return train_set, val_set, test_set
 
-def load_model(net, optim, scheduler, cp_path, device):
+def load_model(net, cp_path, device, optim=None, scheduler=None):
     checkpoint = torch.load(cp_path, map_location="cuda:" + str(device))
     net.load_state_dict(checkpoint['model'])
     net.to(device)
-    optim.load_state_dict(checkpoint['optimizer'])
-    scheduler.load_state_dict(checkpoint['scheduler'])
+    if optim is not None:
+        optim.load_state_dict(checkpoint['optimizer'])
+    if scheduler is not None:
+        scheduler.load_state_dict(checkpoint['scheduler'])
     initial_e = checkpoint['epoch']
     return net, optim, scheduler, initial_e
 

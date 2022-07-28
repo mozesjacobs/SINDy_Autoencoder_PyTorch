@@ -58,7 +58,7 @@ def main():
     
     # load model, optim, scheduler, epoch from checkpoint
     if args.load_cp == 1:
-        net, optim, scheduler, initial_e = load_model(net, optim, scheduler, cp_path, device)
+        net, optim, scheduler, initial_e = load_model(net, cp_path, device, optim, scheduler)
     else:  # init network
         net.apply(init_weights)
 

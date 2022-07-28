@@ -42,7 +42,7 @@ def main():
 
     # load model
     net = make_model(args).to(device)
-    net, _, _, _ = load_model(net, optim, scheduler, cp_path, device)
+    net, _, _, _ = load_model(net, cp_path, device)
 
     # print the governing equations
     print_gov_eqs(net)

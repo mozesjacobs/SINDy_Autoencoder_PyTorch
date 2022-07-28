@@ -9,7 +9,7 @@ def parse_args():
     # path saved as: initial_folder/data_set/model/session_name
     # where initial_folder is experiments, model_folder, or tensorboard_folder
     parser.add_argument('-sess', '--session_name', default="7-27-2022_1", type=str, help="Session name")
-    parser.add_argument('-M',  '--model', default="SINDyVAE", type=str, help="Model to use")
+    parser.add_argument('-M',  '--model', default="SINDyVAE", type=str, help="Model to use (SINDyAE, SINDyAE")
     parser.add_argument('-EX', '--experiments', default='./experiments/', type=str, help="Output folder for experiments")
     parser.add_argument('-MF', '--model_folder', default='./trained_models/', type=str, help="Output folder for experiments")
     parser.add_argument('-TB', '--tensorboard_folder', default='./tb_runs/', type=str, help="Output folder for tensorboard")
@@ -38,6 +38,7 @@ def parse_args():
     parser.add_argument('-TI', '--test_interval', default=1, type=float, help="Epoch interval to evaluate on val (test) data during training")
     parser.add_argument('-CPI', '--checkpoint_interval', default=1, type=float, help="Epoch interval to save model during training")
     parser.add_argument('-ST', '--sequential_threshold', default=5e-2, type=float, help="Sequential thresholding value for coefficients")
+    parser.add_argument('-B', '--beta', default=1.0, type=float, help="Weighting of KL divergence for SINDyVAE")
 
     # lorenz dataset parameters
     parser.add_argument('-TIC', '--train_initial_conds', default=2048, type=int, help='Number of initial conditions in the training set')
